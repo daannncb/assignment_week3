@@ -3,23 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cursor Clicker</title>
+    <title>Cookie Clicker</title>
     <link rel="stylesheet" href="style.css" />
     <script src="app.js" defer></script>
   </head>
   <body>
-    <h1>Cookie Clicker</h1>
-    <!-- We need a clickable element; cookie, something. -->
+    <h1 class="title">Cookie Clicker</h1>
     <img
-      src="./assignment_week3_assets/largecursor.png"
+      src="./assignment_week3_assets/cookie.png"
       alt="An image of a large cursor hovering over a button."
       id="big-cookie"
     />
-    <p>Cookie count (total):</p>
-    <p>Cookies per second: `${}`(?)</p>
+    <div class="cookie-info">
+      <div id="cookies-and-cps">
+        <p>Cookies: <span id="cookie-count">0</span></p>
 
-    <div id="shop-container">
-      <!-- <li> make a list in here, make interactive in JS</li> -->
+        <p>Cookies per second: <span id="cps">0</span></p>
+      </div>
     </div>
+    <div id="shop-container"></div>
   </body>
 </html>

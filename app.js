@@ -1,13 +1,3 @@
-console.log("hello");
-
-//TODO: Need to make cookie button interactive; one click, one cookie. Variables to add modifiers to click value, and a flat increase to cookies per second once the shop items are purchased
-//TODO: loopWhile: use the loop with parameter of cookies per second to add the value of cookies per second to the total cookies, each second
-// When the shop items are purchased, total cookie count goes down, CPS goes up
-//shopUpgradeLogic:
-// option 1
-//TODO: shop items: one function (){}, but shop buttons give the function different values(cost, CPS increase)
-//TODO Local storage: Make sure the values are updated after the user purchases an upgrade, or when the user clicks on the cookie
-
 //:::::::::::::::::::::::: API FETCH :::::::::::::::::::::::::::::::::::
 async function upgradeShop() {
   const response = await fetch(
@@ -16,59 +6,88 @@ async function upgradeShop() {
   const upgrades = await response.json();
   return upgrades;
 }
+
+//:::::::::::::::::::::::: SHOP FUNCTION :::::::::::::::::::::::::::::::
 upgradeShop().then((upgrades) => {
   for (var i = 0; i < upgrades.length; i++) {
-    // var shopInfo = upgrades[i];
-    var shopId = upgrades[i].id;
-    var shopName = upgrades[i].name;
-    var shopCost = upgrades[i].cost;
-    var shopIncrease = upgrades[i].increase;
-    //TODO: create DOM element by ID with name, cost; make interactive and add cps to total
+    let shopName = upgrades[i].name;
+    let shopCost = upgrades[i].cost;
+    let shopIncrease = upgrades[i].increase;
     const shopContainer = document.getElementById("shop-container");
     const shopElement = document.createElement("div");
-    shopElement.innerHTML = `
-    <h3>${shopName}</h3>
+    shopElement.className = "shop-item";
+    shopElement.innerHTML = `<h3>${shopName}</h3>
     <p>Cost: ${shopCost}</p>
-    <p>Gives you ${shopIncrease} more cursi per second.
+    <p>Bake ${shopIncrease} more cookies per second.</p>
     `;
-    shopContainer.appendChild(shopElement);
+    const buyButton = document.createElement("button");
+    buyButton.className = "shop-button";
+    buyButton.textContent = `Buy 1 ${shopName}`;
 
-    // console.log(shopCost);
+    buyButton.addEventListener("click", () => {
+      purchaseUpgrade(upgrades[i]);
+      console.log(`${shopName} button clicked!`);
+    });
+
+    function purchaseUpgrade() {
+      if (cookieCount >= shopCost) {
+        cookieCount -= shopCost;
+        cps += shopIncrease;
+        updateDisplay();
+        saveGame();
+      } else {
+        console.log("not enough cookies");
+      }
+    }
+
+    shopElement.appendChild(buyButton);
+
+    shopContainer.appendChild(shopElement);
   }
 });
 
-//::::::::::::::::::::::::: Code from Manny :::::::::::::::::::::::::::::
-//data storage
+//:::::::::::::::::::::::: BIG COOKIE & COOKIE TRACKING ::::::::::::::::
 let cookieCount = 0;
 let cps = 0;
-
-let stats = {
-  cookieCount: 0,
-  cps: 0,
-};
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//the interval
 setInterval(function () {
   cookieCount += cps;
+  updateDisplay();
 }, 1000);
-//cookieCount = cookieCount + cps
-// //TODO this ADDS the value of cps to total cookies each second
+const cookieCountElement = document.getElementById("cookie-count");
+const cpsElement = document.getElementById("cps");
+const bigCookie = document.getElementById("big-cookie");
 
-const shopUpgradeLogic = function(){
-    getUpgradeCost = //APIcall1
-    removeCurrentCookies = //cookieCount - getUpgradeCost
-    getcpsIncrease = //APIcall2
-    addcps = //cps + getcpsIncrease
-    //local.storage.save
+function updateDisplay() {
+  cookieCountElement.textContent = cookieCount;
+  cpsElement.textContent = cps;
+}
 
-};
+bigCookie.addEventListener("click", function () {
+  cookieCount++;
+  console.log(cookieCount);
+  updateDisplay();
+});
 
-//:::::::::::::::::: Making Cursor Interactive ::::::::::::::::::::::
+setInterval(saveGame, 300000); //I wanted to implement a save on a timer, but it broke the shop item purchase timer because I had saveGame(), not saveGame
 
-const largeCursorButton = document.querySelector("big-cookie")
+function saveGame() {
+  const saveState = {
+    cookieCount: cookieCount,
+    cps: cps,
+  };
+  localStorage.setItem("cookieClickerSavestate", JSON.stringify(saveState));
+  console.log("Progress Saved");
+}
 
-largeCursorButton.addEventListener("click", function(){
-    addCookie = cookieCount + cookiePerClickModifier,
+function loadGame() {
+  const saveData = localStorage.getItem("cookieClickerSavestate");
+  if (saveData) {
+    const saveState = JSON.parse(saveData);
+    cookieCount = saveState.cookieCount || 0;
+    cps = saveState.cps || 0;
+    updateDisplay();
+    console.log("Game loaded:", saveState);
+  }
+}
 
-})
+loadGame();
